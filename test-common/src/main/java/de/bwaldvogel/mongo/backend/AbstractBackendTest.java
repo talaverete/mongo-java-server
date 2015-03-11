@@ -1575,6 +1575,31 @@ public abstract class AbstractBackendTest extends AbstractSimpleBackendTest {
     }
 
     @Test
+    public void testUpdateMin() throws Exception {
+        BasicDBObject object = json("_id: 1");
+
+        collection.insert(object);
+
+        collection.update(object, json("$min: {'foo.bar': 100}"));
+        assertThat(collection.findOne(object)).isEqualTo(json("_id: 1, foo : {bar : 100}"));
+
+        collection.update(object, json("$min: {'foo.bar': 100}"));
+        assertThat(collection.findOne(object)).isEqualTo(json("_id: 1, foo : {bar : 100}"));
+
+        collection.update(object, json("$min: {'foo.bar': 10}"));
+        assertThat(collection.findOne(object)).isEqualTo(json("_id: 1, foo : {bar : 10}"));
+
+        collection.update(object, json("$min: {'foo.bar': 100}"));
+        assertThat(collection.findOne(object)).isEqualTo(json("_id: 1, foo : {bar : 10}"));
+
+        collection.update(object, json("$min: {'foo.bar': null}"));
+        assertThat(collection.findOne(object)).isEqualTo(json("_id: 1, foo : {bar : null}"));
+
+        collection.update(object, json("$min: {'foo.bar': '2', 'buz' : 1}"));
+        assertThat(collection.findOne(object)).isEqualTo(json("_id: 1, foo : {bar : null}, buz : 1"));
+    }
+
+    @Test
     public void testUpdatePop() throws Exception {
         BasicDBObject object = json("_id: 1");
 
